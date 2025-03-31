@@ -13,6 +13,15 @@ BEGIN
     END;
     
     START TRANSACTION;
+    -- Check if username already exists
+    DECLARE user_exists INT;
+    SELECT COUNT(*) INTO user_exists FROM users WHERE username = p_username;
+    IF user_exists > 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Username already exists';
+    END IF;
+    -- Insert new user
+
+
     INSERT INTO users (username, password_hash) VALUES (p_username, p_password_hash);
     COMMIT;
 END $$
@@ -22,6 +31,7 @@ CREATE PROCEDURE LoginUser(
     IN p_username VARCHAR(50)
 )
 BEGIN
+    
     SELECT id, password_hash FROM users WHERE username = p_username;
 END $$
 

@@ -3,19 +3,68 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 // Routes that don't require authentication
-const publicRoutes = ['/signin', '/signup', '/api/auth/signin', '/api/auth/signup'];
+const publicRoutes = [
+  '/signin', '/signup', '/api/auth/signin', '/api/auth/signup',
+  '/', 
+  '/api/auth/me'  // Add this to make it accessible for auth checking
+];
+
+// Static assets that should always be accessible
+const staticAssetPaths = [
+  '/_next/',
+  '/favicon.ico',
+  '/images/',
+  '/fonts/',
+  '/index.html',
+  '/international-e-waste-day.webp', // Add the specific image path
+  '.webp',  // Allow all webp files
+  '.jpg',   // Allow all jpg files
+  '.jpeg',  // Allow all jpeg files
+  '.png',   // Allow all png files
+  '.svg',   // Allow all svg files
+  '.gif'    // Allow all gif files
+];
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
+  console.log('Middleware processing path:', path); // Debug logging
+  
+  // Always allow root path
+  if (path === '/') {
+    return NextResponse.next();
+  }
+  if (path === '') {
+    return NextResponse.next();
+  }
+  
+  // Allow static assets including image files
+  if (staticAssetPaths.some(prefix => 
+    path.startsWith(prefix) || 
+    path === prefix || 
+    path.endsWith(prefix)
+  )) {
+    console.log('Allowing static asset:', path);
+    return NextResponse.next();
+  }
+  
   // Allow public routes
-  if (publicRoutes.some(route => path.startsWith(route))) {
+  if (publicRoutes.some(route => path === route || path.startsWith(route + '/'))) {
+    return NextResponse.next();
+  }
+  
+  // Allow all API routes that begin with /api/auth/
+  if (path.startsWith('/api/auth/')) {
     return NextResponse.next();
   }
 
   const token = request.cookies.get('auth-token')?.value;
 
   if (!token) {
+    // Don't redirect for image files
+    if (path.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+      return NextResponse.next();
+    }
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 

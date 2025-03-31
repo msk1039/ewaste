@@ -24,17 +24,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/me');
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
+        console.log('Checking auth status...');
+        const response = await fetch('../api/auth/me');
+        console.log('Auth response status:', response.status);
+        console.log('Auth response type:', response.headers.get('content-type'));
+        
+        const text = await response.text(); // Get the raw response first
+        console.log('Auth response body (first 100 chars):', text.substring(0, 100));
+        
+        // Try to parse as JSON if it looks like JSON
+        try {
+          if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
+            const data = JSON.parse(text);
+            console.log('Parsed user data:', data);
+            if (data.user) {
+              setUser(data.user);
+            } else {
+              setUser(null);
+            }
+          } else {
+            console.error('Response is not JSON:', text.substring(0, 100));
+            setUser(null);
+          }
+        } catch (parseError) {
+          console.error('Failed to parse response as JSON:', parseError);
+          setUser(null);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
+        setUser(null);
       } finally {
         setLoading(false);
       }

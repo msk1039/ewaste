@@ -4,21 +4,43 @@ import jwt from 'jsonwebtoken';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key';
 
+// Make sure this is properly exported as a GET handler
 export async function GET() {
+  // Add headers to ensure JSON response
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  
   try {
+    console.log('API route /api/auth/me called');
     const token = (await cookies()).get('auth-token')?.value;
     
+    console.log('Token found:', !!token);
+    
     if (!token) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      console.log('No token found, returning 401');
+      return NextResponse.json({ error: 'Not authenticated' }, { 
+        status: 401,
+        headers,
+      });
     }
     
     try {
       const decoded = jwt.verify(token, SECRET_KEY);
-      return NextResponse.json({ user: decoded });
+      console.log('Token verified successfully:', decoded);
+      return NextResponse.json({ user: decoded }, { headers });
     } catch (error) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      console.log('Token verification failed:', error);
+      return NextResponse.json({ error: 'Invalid token' }, { 
+        status: 401,
+        headers,
+      });
     }
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Server error in /api/auth/me:', error);
+    return NextResponse.json({ error: error.message }, { 
+      status: 500,
+      headers,
+    });
   }
 }
