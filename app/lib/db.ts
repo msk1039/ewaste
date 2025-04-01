@@ -22,6 +22,7 @@ export const pool = mysql.createPool({
 });
 
 // Execute SQL queries
+
 export async function executeQuery(query: string, params: any[] = []): Promise<any> {
   try {
     const [rows, fields] = await pool.execute(query, params);
@@ -32,7 +33,7 @@ export async function executeQuery(query: string, params: any[] = []): Promise<a
   }
 }
 
-// Get a connection from the pool
+// Get a connection from the pool.
 export async function getConnection() {
   try {
     return await pool.getConnection();
