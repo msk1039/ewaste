@@ -2,18 +2,23 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-import { toast } from 'sonner'; // Updated import
+import { toast } from 'sonner';
 
 interface User {
   id: number;
-  username: string;
+  name: string;
+  email: string;
+  role: 'donor' | 'admin' | 'volunteer';
+  donorType?: string; // For donors only
+  age?: number; // For volunteers only
+  occupation?: string; // For volunteers only
+  programId?: number; // For volunteers only
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, role: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -28,29 +33,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const checkAuth = async () => {
       try {
         console.log('Checking auth status...');
-        const response = await fetch('../api/auth/me');
+        const response = await fetch('/api/auth/me');
         console.log('Auth response status:', response.status);
-        console.log('Auth response type:', response.headers.get('content-type'));
         
-        const text = await response.text(); // Get the raw response first
-        console.log('Auth response body (first 100 chars):', text.substring(0, 100));
+        if (!response.ok) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
         
-        // Try to parse as JSON if it looks like JSON
-        try {
-          if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
-            const data = JSON.parse(text);
-            console.log('Parsed user data:', data);
-            if (data.user) {
-              setUser(data.user);
-            } else {
-              setUser(null);
-            }
-          } else {
-            console.error('Response is not JSON:', text.substring(0, 100));
-            setUser(null);
-          }
-        } catch (parseError) {
-          console.error('Failed to parse response as JSON:', parseError);
+        const data = await response.json();
+        console.log('Parsed user data:', data);
+        
+        if (data.user) {
+          setUser(data.user);
+        } else {
           setUser(null);
         }
       } catch (error) {
@@ -64,29 +61,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     checkAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string, role: string): Promise<boolean> => {
     try {
       const response = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password, role }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        toast.error(` ${data.error || "Invalid credentials"}`);
+        toast.error(data.error || "Invalid credentials");
         return false;
       }
 
       const data = await response.json();
-      setUser({ id: data.id, username });
+      setUser({
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        ...data.additionalInfo
+      });
       
-      toast.success('Logged in successfully')
+      toast.success('Logged in successfully');
       
-      router.push('/');
+      // Redirect based on role
+      if (data.role === 'admin') {
+        router.push('/admin');
+      } else if (data.role === 'volunteer') {
+        router.push('/volunteer');
+      } else if (data.role === 'donor') {
+        router.push('/donor');
+      }
+      else{
+        toast.error('Invalid role');
+        return false;
+      }
+      
       return true;
     } catch (error) {
-        toast.error( "Something went wrong during login",);
+      toast.error("Something went wrong during login");
       console.error('Login failed:', error);
       return false;
     }
@@ -101,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       toast.success("You have been logged out successfully");
       
-      router.push('/login');
+      router.push('/signin');
     } catch (error) {
       toast.error("Something went wrong during logout");
       console.error('Logout failed:', error);

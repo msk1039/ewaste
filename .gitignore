@@ -9,9 +9,12 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-
+/migration/ewaste-db-deploy/node_modules
 # testing
 /coverage
+
+
+
 
 # next.js
 /.next/

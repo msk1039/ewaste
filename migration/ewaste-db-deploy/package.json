@@ -1,0 +1,17 @@
+{
+  "name": "ewaste-db-deploy",
+  "version": "1.0.0",
+  "description": "A script to deploy the e-waste database on Aiven MySQL.",
+  "main": "src/deploy.js",
+  "scripts": {
+    "start": "node src/deploy.js"
+  },
+  "dependencies": {
+    "mysql2": "^2.3.3",
+    "dotenv": "^10.0.0",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}

@@ -54,9 +54,12 @@ export async function middleware(request: NextRequest) {
   }
   
   // Allow all API routes that begin with /api/auth/
-  if (path.startsWith('/api/auth/')) {
+  if (path.startsWith('/api/')) {
     return NextResponse.next();
   }
+  // if (path.startsWith('/api/auth/')) {
+  //   return NextResponse.next();
+  // }
 
   const token = request.cookies.get('auth-token')?.value;
 

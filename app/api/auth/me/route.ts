@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import { pool } from '@/app/lib/db';
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key';
 
-// Make sure this is properly exported as a GET handler
 export async function GET() {
-  // Add headers to ensure JSON response
   const headers = {
     'Content-Type': 'application/json',
   };
@@ -26,9 +25,40 @@ export async function GET() {
     }
     
     try {
-      const decoded = jwt.verify(token, SECRET_KEY);
+      const decoded: any = jwt.verify(token, SECRET_KEY);
       console.log('Token verified successfully:', decoded);
-      return NextResponse.json({ user: decoded }, { headers });
+      
+      // Get additional user information based on role
+      let additionalInfo = {};
+      
+      if (decoded.role === 'donor') {
+        const [rows]: any = await pool.execute(
+          'SELECT donor_type FROM Donor WHERE donor_id = ?',
+          [decoded.id]
+        );
+        if (rows && rows.length > 0) {
+          additionalInfo = { donorType: rows[0].donor_type };
+        }
+      } else if (decoded.role === 'volunteer') {
+        const [rows]: any = await pool.execute(
+          'SELECT age, occupation, program_id FROM Volunteer WHERE volunteer_id = ?',
+          [decoded.id]
+        );
+        if (rows && rows.length > 0) {
+          additionalInfo = { 
+            age: rows[0].age,
+            occupation: rows[0].occupation,
+            programId: rows[0].program_id
+          };
+        }
+      }
+      
+      return NextResponse.json({ 
+        user: {
+          ...decoded,
+          ...additionalInfo
+        } 
+      }, { headers });
     } catch (error) {
       console.log('Token verification failed:', error);
       return NextResponse.json({ error: 'Invalid token' }, { 

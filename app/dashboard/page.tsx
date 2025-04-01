@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import DonorDashboard from '@/components/dashboard/DonorDashboard';
+import VolunteerDashboard from '@/components/dashboard/VolunteerDashboard';
+import AdminDashboard from '@/components/dashboard/AdminDashboard';
 
-
-export default function Home() {
+export default function Dashboard() {
   const { user, loading, logout } = useAuth();
 
   if (loading) {
@@ -30,7 +32,7 @@ export default function Home() {
           </CardHeader>
           <CardContent className="flex justify-center gap-4">
             <Button asChild>
-              <Link href="/login">Sign In</Link>
+              <Link href="/signin">Sign In</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/signup">Sign Up</Link>
@@ -42,27 +44,21 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8 bg-slate-50">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <h1 className="text-3xl font-bold">E-Waste Management Dashboard</h1>
           <div className="flex items-center gap-4">
-            <p className="text-muted-foreground">Welcome, {user.username}!</p>
+            <p className="text-muted-foreground">Welcome, {user.name}!</p>
             <Button variant="destructive" onClick={logout}>
               Logout
             </Button>
           </div>
         </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Dashboard</CardTitle>
-            <CardDescription>Overview of your e-waste management activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* <p>Your authenticated dashboard content goes here.</p> */}
-          </CardContent>
-        </Card>
+        {user.role === 'donor' && <DonorDashboard userId={user.id} />}
+        {user.role === 'volunteer' && <VolunteerDashboard userId={user.id} />}
+        {user.role === 'admin' && <AdminDashboard userId={user.id} />}
       </div>
     </div>
   );
