@@ -5,9 +5,20 @@ export const pool = mysql.createPool({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'myapp',
+  port: parseInt(process.env.DB_PORT || '3306', 10),
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  connectTimeout: 30000,
+  queueLimit: 0,
+  ssl: process.env.NODE_ENV === 'production'
+    ? {
+        // For production, maintain security requirements
+        rejectUnauthorized: true,
+      }
+    : {
+        // For development, allow self-signed certificates
+        rejectUnauthorized: false,
+      },
 });
 
 // Execute SQL queries

@@ -53,7 +53,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   
-  // Allow all API routes that begin with /api/auth/
+  // Allow all API routes that begin with /api/
   if (path.startsWith('/api/')) {
     return NextResponse.next();
   }
