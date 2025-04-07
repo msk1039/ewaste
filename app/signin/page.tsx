@@ -102,6 +102,7 @@ function LoginForm() {
                 <SelectItem value="donor">Donor</SelectItem>
                 <SelectItem value="volunteer">Volunteer</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="recycler">Recycler</SelectItem>
               </SelectContent>
             </Select>
           </div>

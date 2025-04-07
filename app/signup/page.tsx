@@ -23,6 +23,7 @@ export default function SignupPage() {
   const [donorType, setDonorType] = useState('');
   const [age, setAge] = useState('');
   const [occupation, setOccupation] = useState('');
+  const [serviceArea, setServiceArea] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -57,6 +58,12 @@ export default function SignupPage() {
       setIsLoading(false);
       return;
     }
+    
+    if (role === 'recycler' && (!phone || !serviceArea)) {
+      setError('Phone number and service area are required for recyclers');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const userData = {
@@ -68,7 +75,8 @@ export default function SignupPage() {
         address,
         donorType: role === 'donor' ? donorType : undefined,
         age: role === 'volunteer' ? parseInt(age) : undefined,
-        occupation: role === 'volunteer' ? occupation : undefined
+        occupation: role === 'volunteer' ? occupation : undefined,
+        serviceArea: role === 'recycler' ? serviceArea : undefined
       };
 
       const response = await fetch('/api/auth/signup', {
@@ -126,6 +134,7 @@ export default function SignupPage() {
                   <SelectItem value="donor">Donor</SelectItem>
                   <SelectItem value="volunteer">Volunteer</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="recycler">Recycler</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -156,13 +165,14 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">Phone Number{role === 'recycler' ? ' *' : ''}</Label>
               <Input
                 id="phone"
                 placeholder="Enter your phone number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 disabled={isLoading}
+                required={role === 'recycler'}
               />
             </div>
 
@@ -224,6 +234,20 @@ export default function SignupPage() {
                   />
                 </div>
               </>
+            )}
+            
+            {role === 'recycler' && (
+              <div className="space-y-2">
+                <Label htmlFor="serviceArea">Service Area *</Label>
+                <Input
+                  id="serviceArea"
+                  placeholder="Enter your service area"
+                  value={serviceArea}
+                  onChange={(e) => setServiceArea(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
             )}
             
             <div className="space-y-2">

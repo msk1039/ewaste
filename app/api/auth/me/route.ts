@@ -12,7 +12,8 @@ export async function GET() {
   
   try {
     console.log('API route /api/auth/me called');
-    const token = (await cookies()).get('auth-token')?.value;
+    // Fix: Changed 'auth-token' to 'authToken' to match the cookie name set in signin route
+    const token = (await cookies()).get('authToken')?.value;
     
     console.log('Token found:', !!token);
     
@@ -72,5 +73,30 @@ export async function GET() {
       status: 500,
       headers,
     });
+  }
+}
+
+
+// import { NextResponse } from 'next/server';
+// import { cookies } from 'next/headers';
+// import jwt from 'jsonwebtoken';
+// import { pool } from '@/app/lib/db';
+
+// const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key';
+
+export async function getAuthSession() {
+  const token = (await cookies()).get('authToken')?.value;
+  
+  if (!token) {
+    return null;
+  }
+  
+  try {
+    const decoded: any = jwt.verify(token, SECRET_KEY);
+    return {
+      user: decoded
+    };
+  } catch (error) {
+    return null;
   }
 }

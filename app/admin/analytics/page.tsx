@@ -302,7 +302,7 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-8">
+    <div className="container mx-auto px-4 py-6 space-y-8 md:max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Donation Analytics</h1>

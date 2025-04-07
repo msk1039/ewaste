@@ -1,89 +1,97 @@
 import { NextResponse } from 'next/server';
+import { compare } from 'bcryptjs';
 import { pool } from '@/app/lib/db';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { sign } from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-
-const SECRET_KEY = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(req: Request) {
   try {
     const { email, password, role } = await req.json();
-    
+
     if (!email || !password || !role) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Email, password and role are required' }, { status: 400 });
     }
 
-    let query, params, idField;
+    let user: any;
+    let procedureName: string;
 
-    // Determine the appropriate table based on role
+    // Choose the right login procedure based on role
     switch (role) {
       case 'donor':
-        query = 'SELECT donor_id, name, email, password FROM Donor WHERE email = ?';
-        params = [email];
-        idField = 'donor_id';
+        procedureName = 'LoginDonor';
         break;
       case 'admin':
-        query = 'SELECT admin_id, name, email, password FROM Admin WHERE email = ?';
-        params = [email];
-        idField = 'admin_id';
+        procedureName = 'LoginAdmin';
         break;
       case 'volunteer':
-        // For volunteers, we need to check by name since they don't have emails in the schema
-        query = 'SELECT volunteer_id, name FROM Volunteer WHERE name = ?';
-        params = [email]; // Using email field for name (not ideal but working with the schema)
-        idField = 'volunteer_id';
+        procedureName = 'LoginVolunteer';
+        break;
+      case 'recycler':
+        procedureName = 'LoginRecycler';
         break;
       default:
         return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
     }
 
-    const [rows]: any = await pool.execute(query, params);
+    // Execute the appropriate login procedure
+    const [rows]: any = await pool.execute(`CALL ${procedureName}(?)`, [email]);
 
-    if (!rows || rows.length === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
+    if (!rows || !rows[0] || rows[0].length === 0) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const user = rows[0];
+    // Get the first (and should be only) user record
+    user = rows[0][0];
 
-    // For volunteers we don't have passwords in the schema, so we skip password checking
-    if (role !== 'volunteer') {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-      }
+    // Verify password
+    const isPasswordValid = await compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    // Create token with role information
-    const token = jwt.sign({ 
-      id: user[idField], 
-      name: user.name, 
-      email: user.email,
-      role 
-    }, SECRET_KEY, { expiresIn: '1h' });
-    
-    // Set cookie
+    // Determine ID field name based on role (e.g., donor_id, admin_id)
+    const idField = `${role}_id`;
+
+    // Create JWT token
+    const token = sign(
+      { 
+        id: user[idField], 
+        email: user.email, 
+        name: user.name,
+        role: role 
+      },
+      process.env.JWT_SECRET || 'fallback-secret',
+      { expiresIn: '7d' }
+    );
+
+    // Set cookie with the token
     (await
-      // Set cookie
+      // Set cookie with the token
       cookies()).set({
-      name: 'auth-token',
+      name: 'authToken',
       value: token,
       httpOnly: true,
       path: '/',
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60, // 1 hour
-      sameSite: 'strict',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      sameSite: 'strict'
     });
 
-    return NextResponse.json({ 
-      id: user[idField],
-      name: user.name,
-      email: user.email,
-      role,
-      message: 'Logged in successfully' 
-    }, { status: 200 });
+    // Return success with user info (without password)
+    const { password: _, ...userWithoutPassword } = user;
+
+    return NextResponse.json({
+      message: 'Login successful',
+      user: {
+        id: user[idField],
+        name: user.name,
+        email: user.email,
+        role: role
+      }
+    });
   } catch (error: any) {
     console.error('Login error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Login failed' }, { status: 500 });
   }
 }

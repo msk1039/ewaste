@@ -46,7 +46,7 @@ export function Hero() {
             </div>
             
             {/* Volunteer Card */}
-            <div className="bg-white dark:bg-green-800/30 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all border border-green-200 dark:border-green-800 group">
+            {/* <div className="bg-white dark:bg-green-800/30 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all border border-green-200 dark:border-green-800 group">
               <div className="mb-4 flex justify-center">
                 <div className="w-20 h-20 bg-green-100 dark:bg-green-700/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
                   <Users size={36} />
@@ -59,7 +59,7 @@ export function Hero() {
                   Join as Volunteer
                 </Button>
               </Link>
-            </div>
+            </div> */}
             
             {/* Admin Card */}
             <div className="bg-white dark:bg-green-800/30 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all border border-green-200 dark:border-green-800 group">
@@ -69,10 +69,25 @@ export function Hero() {
                 </div>
               </div>
               <h3 className="text-xl font-bold text-green-800 dark:text-green-300 mb-2">Admin Access</h3>
-              <p className="text-green-600 dark:text-green-400 mb-4">Manage operations, track metrics, and oversee the entire e-waste management process.</p>
+              <p className="text-green-600 dark:text-green-400 mb-10">Manage operations, track metrics, and oversee the entire e-waste management process.</p>
               <Link href="/signup?role=admin" passHref>
-                <Button size="lg" className="w-full bg-green-600 hover:bg-green-700 text-white rounded-full">
+                <Button size="lg" className="w-full bg-green-600 hover:bg-green-700 text-white rounded-full mt-auto">
                   Admin Login
+                </Button>
+              </Link>
+            </div>
+
+            <div className="bg-white dark:bg-green-800/30 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all border border-green-200 dark:border-green-800 group">
+              <div className="mb-4 flex justify-center">
+                <div className="w-20 h-20 bg-green-100 dark:bg-green-700/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform">
+                  <ShieldCheck size={36} />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-green-800 dark:text-green-300 mb-2">Recycler Access</h3>
+              <p className="text-green-600 dark:text-green-400 mb-10">Manage operations, track metrics, and oversee the entire e-waste management process.</p>
+              <Link href="/signup?role=admin" passHref>
+                <Button size="lg" className="w-full bg-green-600 hover:bg-green-700 text-white rounded-full mt-auto">
+                  Recycler Login
                 </Button>
               </Link>
             </div>

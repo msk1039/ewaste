@@ -107,67 +107,69 @@ export default function DonorDashboard({ userId }: DonorDashboardProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 px-2 sm:px-4 md:px-0">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* New Donation Request Card */}
-        <Card className="hover:shadow-md transition-shadow">
-          <Link href="/requests/new" className="block h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center text-primary">
+        <Card className="hover:shadow-lg transition-shadow border-t-4 border-t-indigo-500 h-full">
+          <Link href="/requests/new" className="block h-full flex flex-col">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-indigo-600">
                 <PlusCircle className="mr-2 h-5 w-5" />
                 Create New Donation Request
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="mt-2">
                 Submit a new e-waste donation request for recycling
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-grow pb-6">
               <p className="text-muted-foreground">
                 Help reduce e-waste by donating your old electronics. Fill out a simple form to get started.
               </p>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline" className="w-full">Create Request</Button>
+            <CardFooter className="pt-2"> 
+              <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Create Request</Button>
             </CardFooter>
           </Link>
         </Card>
 
         {/* Educational Content Card */}
-        <Card className="hover:shadow-md transition-shadow">
-          <Link href="/educational-content" className="block h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center text-primary">
+        <Card className="hover:shadow-lg transition-shadow border-t-4 border-t-violet-500 h-full">
+          <Link href="/educational-content" className="block h-full flex flex-col">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center text-violet-600">
                 <BookOpen className="mr-2 h-5 w-5" />
                 Educational Resources
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="mt-2">
                 Learn about e-waste management and recycling
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
+            <CardContent className="flex-grow">
+              <div className="space-y-3">
                 {educationalContent.slice(0, 2).map((content) => (
-                  <div key={content.content_id} className="p-3 border rounded-md">
+                  <div key={content.content_id} className="p-3 border rounded-md hover:border-violet-200 transition-colors">
                     <div className="font-medium">{content.title}</div>
                     <div className="text-sm text-gray-500 truncate">{content.description}</div>
                   </div>
                 ))}
                 {educationalContent.length === 0 && (
-                  <p className="text-muted-foreground">No educational content available yet.</p>
+                  <p className="text-muted-foreground py-3">No educational content available yet.</p>
                 )}
               </div>
             </CardContent>
-            <CardFooter>
-              <Button variant="ghost" className="w-full">View All Resources</Button>
+            <CardFooter className="pt-2">
+              <Button variant="outline" className="w-full border-violet-300 text-violet-700 hover:bg-violet-50">
+                View All Resources
+              </Button>
             </CardFooter>
           </Link>
         </Card>
       </div>
 
       {/* Past Donation Requests */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
+      <Card className="border-t-4 border-t-teal-500">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center text-teal-700">
             <History className="mr-2 h-5 w-5" />
             Your Donation History
           </CardTitle>
@@ -176,40 +178,42 @@ export default function DonorDashboard({ userId }: DonorDashboardProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableCaption>A list of your recent donation requests</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Date Submitted</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Service Area</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {requests.length > 0 ? (
-                requests.map((request) => (
-                  <TableRow key={request.request_id}>
-                    <TableCell className="font-medium">{request.request_id}</TableCell>
-                    <TableCell>{request.waste_type}</TableCell>
-                    <TableCell>{new Date(request.date_submitted).toLocaleDateString()}</TableCell>
-                    <TableCell>{getStatusBadge(request.status)}</TableCell>
-                    <TableCell className="text-right">{request.service_area || 'N/A'}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableCaption>A list of your recent donation requests</TableCaption>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-6">
-                    You haven't made any donation requests yet.
-                  </TableCell>
+                  <TableHead className="w-[50px]">ID</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="hidden sm:table-cell">Date Submitted</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right hidden md:table-cell">Service Area</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {requests.length > 0 ? (
+                  requests.map((request) => (
+                    <TableRow key={request.request_id} className="hover:bg-gray-50">
+                      <TableCell className="font-medium">{request.request_id}</TableCell>
+                      <TableCell>{request.waste_type}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{new Date(request.date_submitted).toLocaleDateString()}</TableCell>
+                      <TableCell>{getStatusBadge(request.status)}</TableCell>
+                      <TableCell className="text-right hidden md:table-cell">{request.service_area || 'N/A'}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8">
+                      You haven't made any donation requests yet.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button variant="outline" asChild>
+        <CardFooter className="flex justify-end pt-2 pb-4">
+          <Button variant="outline" asChild className="border-teal-300 text-teal-700 hover:bg-teal-50">
             <Link href="/requests/history">View Complete History</Link>
           </Button>
         </CardFooter>

@@ -206,22 +206,25 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
             </TableHeader>
             <TableBody>
               {requests.length > 0 ? (
-                requests.slice(0, 5).map((request) => (
-                  <TableRow key={request.request_id}>
-                    <TableCell className="font-medium">{request.request_id}</TableCell>
-                    <TableCell>{request.donor_name}</TableCell>
-                    <TableCell>{request.waste_type}</TableCell>
-                    <TableCell>{new Date(request.date_submitted).toLocaleDateString()}</TableCell>
-                    <TableCell>{getStatusBadge(request.status)}</TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/admin/requests/${request.request_id}`}>
-                          View
-                        </Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
+                [...requests]
+                  .sort((a, b) => b.request_id - a.request_id)
+                  .slice(0, 5)
+                  .map((request) => (
+                    <TableRow key={request.request_id}>
+                      <TableCell className="font-medium">{request.request_id}</TableCell>
+                      <TableCell>{request.donor_name}</TableCell>
+                      <TableCell>{request.waste_type}</TableCell>
+                      <TableCell>{new Date(request.date_submitted).toLocaleDateString()}</TableCell>
+                      <TableCell>{getStatusBadge(request.status)}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/admin/requests/${request.request_id}`}>
+                            View
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-6">

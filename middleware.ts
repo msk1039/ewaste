@@ -57,17 +57,18 @@ export async function middleware(request: NextRequest) {
   if (path.startsWith('/api/')) {
     return NextResponse.next();
   }
-  // if (path.startsWith('/api/auth/')) {
-  //   return NextResponse.next();
-  // }
 
-  const token = request.cookies.get('auth-token')?.value;
+  // Changed from 'auth-token' to 'authToken' to match the cookie name in signin route
+  const token = request.cookies.get('authToken')?.value;
+  
+  console.log('Auth token found:', !!token);
 
   if (!token) {
     // Don't redirect for image files
     if (path.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
       return NextResponse.next();
     }
+    console.log('No token found, redirecting to signin');
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 
@@ -78,6 +79,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch (error) {
     // Token is invalid or expired
+    console.log('Token verification failed:', error);
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 }

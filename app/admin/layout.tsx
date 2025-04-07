@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     let currentPath = '';
     
     return (
-      <div className="flex items-center text-sm text-muted-foreground">
+      <div className="flex items-center text-sm text-muted-foreground px-4 md:max-w-7xl mx-auto">
         <Link href="/" className="hover:text-foreground transition-colors">
           <Home size={16} className="inline mr-1" />
           Home
@@ -82,12 +82,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     },
     {
       name: 'Educational Content',
-      path: '/admin',
+      path: '/admin/educational-content',
       icon: <BookOpen size={18} className="mr-2" />
     },
     {
       name: 'Programs',
-      path: '/admin',
+      path: '/admin/Programs',
       icon: <Calendar size={18} className="mr-2" />
     }
   ];
@@ -100,7 +100,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     <div>
       {/* Desktop & Mobile Navigation */}
       <header className="sticky top-0 z-40 w-full backdrop-blur-sm bg-white/80 border-b ">
-        <div className="container flex h-16 items-center justify-between mx-auto">
+        <div className="container flex h-16 items-center justify-between mx-auto max-w-7xl px-4">
           <div className="flex items-center">
             <Link href="/admin" className="font-medium text-lg">
               E-Waste Admin

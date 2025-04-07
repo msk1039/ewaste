@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from "./context/AuthContext";
 // import { Toast } from "@/components/ui/toaster";
-import { Toaster, toast } from "sonner"
-import { ThemeProvider } from "@/components/theme-provider"
-
+import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
+// import DatabaseInitializer from "./components/DatabaseInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,14 +32,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            {/* <DatabaseInitializer /> */}
+            {children}
+            <Toaster richColors />
+          </AuthProvider>
         </ThemeProvider>
       </body>
-
     </html>
   );
 }

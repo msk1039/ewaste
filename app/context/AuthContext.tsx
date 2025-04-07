@@ -8,7 +8,7 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: 'donor' | 'admin' | 'volunteer';
+  role: 'donor' | 'admin' | 'volunteer' | 'recycler';
   donorType?: string; // For donors only
   age?: number; // For volunteers only
   occupation?: string; // For volunteers only
@@ -63,43 +63,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string, role: string): Promise<boolean> => {
     try {
+      console.log("Attempting login with:", { email, role });
       const response = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, role }),
       });
 
+      const data = await response.json();
+      console.log("Login response:", data);
+
       if (!response.ok) {
-        const data = await response.json();
         toast.error(data.error || "Invalid credentials");
         return false;
       }
-
-      const data = await response.json();
-      setUser({
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        ...data.additionalInfo
-      });
       
-      toast.success('Logged in successfully');
-      
-      // Redirect based on role
-      if (data.role === 'admin') {
-        router.push('/admin');
-      } else if (data.role === 'volunteer') {
-        router.push('/volunteer');
-      } else if (data.role === 'donor') {
-        router.push('/donor');
-      }
-      else{
-        toast.error('Invalid role');
+      // Properly map the user data from the API response
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+        });
+        
+        toast.success('Logged in successfully');
+        
+        // Use direct window location redirect instead of Next.js router
+        // This forces a full page navigation which is more reliable
+        console.log(`Redirecting to /${data.user.role} page`);
+        
+        // Short timeout to allow the toast to be displayed
+        setTimeout(() => {
+          window.location.href = `/${data.user.role}`;
+        }, 800);
+        
+        return true;
+      } else {
+        toast.error('Invalid user data received');
         return false;
       }
-      
-      return true;
     } catch (error) {
       toast.error("Something went wrong during login");
       console.error('Login failed:', error);

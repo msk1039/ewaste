@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import ContentNotifications from "./ContentNotifications"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -38,7 +39,22 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          
+          {/* Notifications Bell */}
+          <div className="ml-2">
+            <ContentNotifications />
+          </div>
         </nav>
+
+        {/* Auth buttons */}
+        <div className="hidden md:flex items-center gap-4">
+          <Link href="/signin">
+            <Button variant="ghost" size="sm">Sign in</Button>
+          </Link>
+          <Link href="/signup">
+            <Button size="sm">Sign up</Button>
+          </Link>
+        </div>
 
         {/* Mobile Navigation */}
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -60,6 +76,28 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              
+              {/* Mobile Notifications */}
+              <div className="px-2 py-2 flex items-center gap-2">
+                <span className="text-lg font-medium">Notifications</span>
+                <ContentNotifications />
+              </div>
+              
+              {/* Mobile Auth links */}
+              <div className="mt-4 space-y-2 px-2">
+                <Link 
+                  href="/signin"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full">
+                  <Button variant="outline" className="w-full">Sign in</Button>
+                </Link>
+                <Link 
+                  href="/signup"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full">
+                  <Button className="w-full">Sign up</Button>
+                </Link>
+              </div>
             </nav>
           </SheetContent>
         </Sheet>
