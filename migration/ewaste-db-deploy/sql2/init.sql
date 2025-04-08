@@ -1,8 +1,12 @@
+-- Create database
+DROP DATABASE IF EXISTS myapp;
+CREATE DATABASE IF NOT EXISTS myapp;
 USE myapp;
 
 -- Drop existing tables if needed (in reverse order of dependencies)
 DROP TABLE IF EXISTS Feedback;
 DROP TABLE IF EXISTS Total_EWaste;
+DROP TABLE IF EXISTS recycler_assignments;  -- Update to use new table name
 DROP TABLE IF EXISTS Request;
 DROP TABLE IF EXISTS Volunteer;
 DROP TABLE IF EXISTS Educational_Content;
@@ -19,7 +23,7 @@ CREATE TABLE IF NOT EXISTS User (
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(20),
     address VARCHAR(255),
-    user_type ENUM('donor', 'admin', 'volunteer') NOT NULL,
+    user_type ENUM('donor', 'admin', 'volunteer', 'recycler') NOT NULL,
     password VARCHAR(255) NOT NULL
 );
 
@@ -47,12 +51,11 @@ CREATE TABLE IF NOT EXISTS Recycler (
     recycler_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
     phone_no VARCHAR(20),
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
     service_area VARCHAR(100),
-    quantity INT DEFAULT 0
+    quantity INT DEFAULT 0,
+    password VARCHAR(255) NOT NULL
 );
-
-
 
 -- Recycling Program table
 CREATE TABLE IF NOT EXISTS Recycling_Program (
@@ -100,6 +103,21 @@ CREATE TABLE IF NOT EXISTS Request (
     FOREIGN KEY (donor_id) REFERENCES Donor(donor_id) ON DELETE CASCADE
 );
 
+-- Recycler Assignments table (new version that matches your API requirements)
+CREATE TABLE IF NOT EXISTS recycler_assignments (
+    assignment_id INT PRIMARY KEY AUTO_INCREMENT,
+    request_id INT NOT NULL,
+    recycler_id INT NOT NULL,
+    assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_date TIMESTAMP NULL,
+    created_by INT NOT NULL,  -- admin_id who created the assignment
+    
+    -- Foreign key constraints
+    FOREIGN KEY (request_id) REFERENCES Request(request_id) ON DELETE CASCADE,
+    FOREIGN KEY (recycler_id) REFERENCES Recycler(recycler_id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES Admin(admin_id) ON DELETE CASCADE
+);
+
 -- Total E-Waste table
 CREATE TABLE IF NOT EXISTS Total_EWaste (
     e_waste_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -119,10 +137,3 @@ CREATE TABLE IF NOT EXISTS Feedback (
     FOREIGN KEY (donor_id) REFERENCES Donor(donor_id) ON DELETE CASCADE
 );
 
-
-CREATE TABLE IF NOT EXISTS users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);

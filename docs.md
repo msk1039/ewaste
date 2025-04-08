@@ -123,7 +123,7 @@ END
 2. The frontend can display this history in the request detail view using the `RequestStatusHistory` component.
 3. This provides transparency and accountability by maintaining an audit trail of all status changes.
 
-#### Feedback Statistics
+<!-- #### Feedback Statistics
 
 ```sql
 CREATE TRIGGER after_feedback_insert
@@ -156,7 +156,7 @@ END
 
 **How it works**:
 1. When donors submit feedback, this trigger automatically aggregates statistics by donor type.
-2. The admin analytics dashboard can display these statistics without having to recalculate them each time.
+2. The admin analytics dashboard can display these statistics without having to recalculate them each time. -->
 
 ### 4. Automation Triggers
 

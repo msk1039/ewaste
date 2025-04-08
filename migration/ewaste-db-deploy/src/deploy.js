@@ -26,15 +26,27 @@ const config = {
 // Log connection info (remove passwords in production)
 logInfo(`Connecting to database at ${config.db.host}:${config.db.port} as ${config.db.user}`);
 
+// Updated SQL files array with proper ordering
 const sqlFiles = [
-    '01-setup.sql',
-    '02-tables.sql',
-    '03-procedures.sql',
-    '04-request.sql',
-    '05-donor.sql',
-    '06-educational-content.sql',
-    '07-analysis.sql',
-    '08-seed.sql',
+    // Database initialization first
+    'init.sql',
+    
+    // Core procedures 
+    'auth_procedures.sql',
+    'donor_procedures.sql',
+    'request_procedures.sql',
+    'recycler_procedures.sql',
+    'educational_procedures.sql',
+    
+    // Extended functionality
+    'educational_views_procedures.sql',
+    'analytics_procedures.sql',
+    
+    // Triggers (after tables and procedures are set up)
+    'validation_triggers.sql',
+    'triggers.sql',
+    'notification_triggers.sql',
+    'audit_triggers.sql',
 ];
 
 // Function to extract procedure definitions from SQL file
@@ -79,21 +91,25 @@ const extractProcedures = (sqlContent) => {
 
 const runSqlFile = async (connection, file) => {
     try {
-        const filePath = path.join(__dirname, '../sql', file);
+        // Updated to use sql2 directory
+        const filePath = path.join(__dirname, '../sql2', file);
         logInfo(`Reading file ${filePath}`);
         
         const sqlContent = await fs.readFile(filePath, 'utf8');
         
-        // Check if this is a file with stored procedures
-        if (sqlContent.includes('DELIMITER') || sqlContent.includes('CREATE PROCEDURE')) {
-            // Handle stored procedures by parsing them individually
-            logInfo(`Handling stored procedures in ${file}`);
+        // Check if this is a file with stored procedures, triggers, or other delimiter-based SQL
+        if (sqlContent.includes('DELIMITER') || 
+            sqlContent.includes('CREATE PROCEDURE') || 
+            sqlContent.includes('CREATE TRIGGER')) {
+            
+            // Handle special SQL statements by parsing them individually
+            logInfo(`Handling special SQL definitions in ${file}`);
             
             // Step 1: Remove comments to simplify parsing
             let cleanedSql = sqlContent.replace(/--.*$/gm, '').trim();
             
-            // Step 2: Extract and process each procedure separately
-            // First, make sure we're not processing the USE statement as a procedure
+            // Step 2: Extract and process each procedure/trigger separately
+            // First, make sure we're not processing the USE statement as a procedure/trigger
             const useMatch = cleanedSql.match(/^USE\s+\w+;/i);
             let useStatement = '';
             if (useMatch) {
@@ -112,13 +128,26 @@ const runSqlFile = async (connection, file) => {
             // We'll search for pattern CREATE PROCEDURE ... END$$
             const procedurePattern = /CREATE\s+PROCEDURE\s+\w+\s*\([^)]*\)\s*BEGIN[\s\S]*?END\s*(\$\$|;)/gi;
             const procedures = [];
-            let match;
+            let procMatch;
             
-            while ((match = procedurePattern.exec(cleanedSql)) !== null) {
-                let procedure = match[0];
+            while ((procMatch = procedurePattern.exec(cleanedSql)) !== null) {
+                let procedure = procMatch[0];
                 // Remove the DELIMITER markers and standardize to semicolons
                 procedure = procedure.replace(/\$\$/g, ';');
                 procedures.push(procedure);
+            }
+            
+            // Find all trigger definitions
+            // We'll search for pattern CREATE TRIGGER ... END$$
+            const triggerPattern = /CREATE\s+TRIGGER\s+\w+\s+(BEFORE|AFTER)\s+(INSERT|UPDATE|DELETE)\s+ON\s+\w+\s+FOR\s+EACH\s+ROW\s+BEGIN[\s\S]*?END\s*(\$\$|;)/gi;
+            const triggers = [];
+            let trigMatch;
+            
+            while ((trigMatch = triggerPattern.exec(cleanedSql)) !== null) {
+                let trigger = trigMatch[0];
+                // Remove the DELIMITER markers and standardize to semicolons
+                trigger = trigger.replace(/\$\$/g, ';');
+                triggers.push(trigger);
             }
             
             // Execute each procedure
@@ -132,8 +161,46 @@ const runSqlFile = async (connection, file) => {
                     throw error;
                 }
             }
+            
+            // Execute each trigger
+            for (const trigger of triggers) {
+                try {
+                    await connection.query(trigger);
+                    logInfo(`Successfully created trigger from ${file}`);
+                } catch (error) {
+                    logError(`Error creating trigger: ${error.message}`);
+                    logError(`Problem SQL: ${trigger}`);
+                    throw error;
+                }
+            }
+            
+            // Handle any remaining SQL statements that aren't procedures or triggers
+            // Remove all the procedures and triggers from the cleaned SQL
+            let remainingSql = cleanedSql;
+            procedures.forEach(proc => {
+                remainingSql = remainingSql.replace(proc, '');
+            });
+            
+            triggers.forEach(trig => {
+                remainingSql = remainingSql.replace(trig, '');
+            });
+            
+            // Remove DELIMITER statements
+            remainingSql = remainingSql.replace(/DELIMITER\s+.*$/gm, '').trim();
+            
+            // Execute any remaining SQL if it's not empty
+            if (remainingSql && remainingSql.trim() !== '') {
+                try {
+                    await connection.query(remainingSql);
+                    logInfo(`Executed remaining SQL statements from ${file}`);
+                } catch (error) {
+                    logError(`Error executing remaining SQL: ${error.message}`);
+                    logError(`Problem SQL: ${remainingSql}`);
+                    throw error;
+                }
+            }
         } else {
-            // For non-procedure files, execute directly
+            // For non-procedure/trigger files, execute directly
             await connection.query(sqlContent);
             logInfo(`Successfully executed ${file}`);
         }
@@ -155,7 +222,8 @@ const deployDatabase = async () => {
             host: config.db.host,
             user: config.db.user,
             password: config.db.password,
-            database: process.env.DB_NAME, // Use DB_NAME directly instead of config.db.database
+            // Don't specify a database initially - we'll create it in init.sql
+            // database: process.env.DB_NAME,
             port: config.db.port,
             ssl: config.db.ssl,
             multipleStatements: true
