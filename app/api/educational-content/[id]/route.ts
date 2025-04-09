@@ -11,6 +11,8 @@ export async function GET(
     // First record the view
     await pool.execute("CALL RecordContentView(?)", [id]);
     
+    // Add a delay of 1 second after recording the view
+    await new Promise(resolve => setTimeout(resolve, 2000));
     // Then get the content with updated view count
     const [rows]:any = await pool.execute(
      "CALL GetEducationalContentWithViewById(?)",[id]

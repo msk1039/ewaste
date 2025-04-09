@@ -25,7 +25,7 @@ export default function ContentDetail({ content }: ContentDetailProps) {
             Published on {formattedDate}
           </div>
           <div className="flex items-center gap-1 text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
-            <Eye className="h-4 w-4" /> {viewCount/2} views
+            <Eye className="h-4 w-4" /> {viewCount} views
           </div>
         </div>
       </header>

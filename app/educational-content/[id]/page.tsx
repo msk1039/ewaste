@@ -6,6 +6,8 @@ import ContentDetail from "../../components/educational/ContentDetail";
 import { EducationalContent } from "@/types/educational";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { toast } from 'sonner';
+import { showSqlCodeToast, usePrismHighlighting } from "@/components/SqlCodeToast";
 
 export default function EducationalContentDetailPage({ params }: { params: { id: string } }) {
   
@@ -13,32 +15,71 @@ export default function EducationalContentDetailPage({ params }: { params: { id:
   const [content, setContent] = useState<EducationalContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Initialize Prism for any code elements in the page content
+  usePrismHighlighting();
 
   useEffect(() => {
+    let isMounted = true;
+    
     async function fetchContentDetail() {
       const id = await params.id;
       try {
         // The view is automatically recorded by the API when fetching content
-        const response = await fetch(`/api/educational-content/${id}`);
-        
-        if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error("Educational content not found");
+        if (isMounted) setLoading(true);
+        renderTriggerSonner();
+        toast.info("called procedure GetEducationalContentWithViewById(id)")
+        toast.promise(
+          fetch(`/api/educational-content/${id}`).then(async (res) => {
+            if (!res.ok) {
+              throw new Error(res.status === 404 ? "Educational content not found" : "Failed to fetch content details");
+            }
+            const data = await res.json();
+            if (isMounted) setContent(data.content[0]);
+            
+            return data;
+          }),
+          {
+            loading: 'Loading educational content...',
+            success: 'Content loaded successfully',
+            error: (err) => err.message || 'Failed to load content'
           }
-          throw new Error("Failed to fetch content details");
-        }
-        
-        const data = await response.json();
-        setContent(data.content[0]);
+        );
       } catch (err) {
-        setError("Failed to load educational content. Please try again later.");
-        console.error(err);
+        if (isMounted) {
+          setError("Failed to load educational content. Please try again later.");
+          console.error(err);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          
+          
+        }
       }
     }
+    
     fetchContentDetail();
-  }, [params.id]);  // Added params.id as a dependency
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [params.id]);
+
+  function renderTriggerSonner() {
+    const sqlCode = `CREATE PROCEDURE RecordContentView(IN content_id_param INT)
+BEGIN
+    INSERT INTO Content_Views (content_id) 
+    VALUES (content_id_param);
+END`;
+
+    showSqlCodeToast({
+      title: "Trigger RecordContentView called",
+      sqlCode: sqlCode,
+      duration: Infinity
+    });
+    
+  }
 
   if (loading) {
     return (

@@ -34,7 +34,7 @@ export default function ContentCard({ content }: ContentCardProps) {
         <CardFooter className="text-sm text-gray-500 pt-0 flex justify-between items-center">
           <span>Published on {formattedDate}</span>
           <span className="flex items-center gap-1 text-gray-600">
-            <Eye className="h-4 w-4" /> {viewCount/2}
+            <Eye className="h-4 w-4" /> {viewCount}
           </span>
         </CardFooter>
       </Card>

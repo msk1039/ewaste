@@ -158,3 +158,21 @@
     --chart-5: 340 75% 55%;
   }
 }
+
+
+
+
+
+.sql-toast {
+  max-width: 600px !important;
+  width: auto !important;
+}
+
+.sql-toast pre {
+  margin: 0;
+  border-radius: 4px;
+}
+
+.sql-toast code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}

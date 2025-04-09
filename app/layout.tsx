@@ -41,7 +41,7 @@ export default function RootLayout({
           <AuthProvider>
             {/* <DatabaseInitializer /> */}
             {children}
-            <Toaster richColors />
+            <Toaster richColors expand={true} visibleToasts={9} closeButton/>
           </AuthProvider>
         </ThemeProvider>
       </body>
