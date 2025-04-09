@@ -32,7 +32,7 @@ const sqlFiles = [
     'init.sql',
     
     // Core procedures 
-    'auth_procedures.sql',
+    'auth_procedures_fixed.sql',
     'donor_procedures.sql',
     'request_procedures.sql',
     'recycler_procedures.sql',
@@ -102,103 +102,76 @@ const runSqlFile = async (connection, file) => {
             sqlContent.includes('CREATE PROCEDURE') || 
             sqlContent.includes('CREATE TRIGGER')) {
             
-            // Handle special SQL statements by parsing them individually
             logInfo(`Handling special SQL definitions in ${file}`);
             
-            // Step 1: Remove comments to simplify parsing
-            let cleanedSql = sqlContent.replace(/--.*$/gm, '').trim();
-            
-            // Step 2: Extract and process each procedure/trigger separately
-            // First, make sure we're not processing the USE statement as a procedure/trigger
-            const useMatch = cleanedSql.match(/^USE\s+\w+;/i);
+            // Extract the USE statement first
+            const useMatch = sqlContent.match(/^USE\s+\w+;/im);
             let useStatement = '';
             if (useMatch) {
                 useStatement = useMatch[0];
-                cleanedSql = cleanedSql.substring(useMatch[0].length).trim();
-            }
-            
-            // Now process the file without the DELIMITER statements
-            // First execute the USE statement if it exists
-            if (useStatement) {
                 await connection.query(useStatement);
                 logInfo(`Executed USE statement from ${file}`);
             }
             
-            // Find all procedure definitions
-            // We'll search for pattern CREATE PROCEDURE ... END$$
-            const procedurePattern = /CREATE\s+PROCEDURE\s+\w+\s*\([^)]*\)\s*BEGIN[\s\S]*?END\s*(\$\$|;)/gi;
-            const procedures = [];
-            let procMatch;
+            // Split the file by DELIMITER statements
+            const parts = sqlContent.split(/DELIMITER\s+[^\s]+/i);
             
-            while ((procMatch = procedurePattern.exec(cleanedSql)) !== null) {
-                let procedure = procMatch[0];
-                // Remove the DELIMITER markers and standardize to semicolons
-                procedure = procedure.replace(/\$\$/g, ';');
-                procedures.push(procedure);
-            }
-            
-            // Find all trigger definitions
-            // We'll search for pattern CREATE TRIGGER ... END$$
-            const triggerPattern = /CREATE\s+TRIGGER\s+\w+\s+(BEFORE|AFTER)\s+(INSERT|UPDATE|DELETE)\s+ON\s+\w+\s+FOR\s+EACH\s+ROW\s+BEGIN[\s\S]*?END\s*(\$\$|;)/gi;
-            const triggers = [];
-            let trigMatch;
-            
-            while ((trigMatch = triggerPattern.exec(cleanedSql)) !== null) {
-                let trigger = trigMatch[0];
-                // Remove the DELIMITER markers and standardize to semicolons
-                trigger = trigger.replace(/\$\$/g, ';');
-                triggers.push(trigger);
-            }
-            
-            // Execute each procedure
-            for (const procedure of procedures) {
-                try {
-                    await connection.query(procedure);
-                    logInfo(`Successfully created procedure from ${file}`);
-                } catch (error) {
-                    logError(`Error creating procedure: ${error.message}`);
-                    logError(`Problem SQL: ${procedure}`);
-                    throw error;
+            // The first part might contain setup SQL like USE statements
+            // Execute each SQL statement in the first part separately
+            if (parts[0] && parts[0].trim()) {
+                const initialStatements = parts[0].split(';')
+                    .filter(stmt => stmt.trim())
+                    .map(stmt => stmt.trim() + ';');
+                
+                for (const stmt of initialStatements) {
+                    if (stmt.trim() !== ';') {
+                        try {
+                            await connection.query(stmt);
+                            logInfo(`Executed initialization statement from ${file}`);
+                        } catch (error) {
+                            logError(`Error executing initialization statement: ${error.message}`);
+                            logError(`Problem SQL: ${stmt}`);
+                            // Continue execution instead of failing completely
+                        }
+                    }
                 }
             }
             
-            // Execute each trigger
-            for (const trigger of triggers) {
-                try {
-                    await connection.query(trigger);
-                    logInfo(`Successfully created trigger from ${file}`);
-                } catch (error) {
-                    logError(`Error creating trigger: ${error.message}`);
-                    logError(`Problem SQL: ${trigger}`);
-                    throw error;
+            // Now handle all the procedure and trigger definitions
+            // Each definition is in a section between DELIMITER statements
+            for (let i = 1; i < parts.length; i++) {
+                const delimiterSection = parts[i].trim();
+                
+                // Skip empty sections
+                if (!delimiterSection) continue;
+                
+                // Find all CREATE PROCEDURE or CREATE TRIGGER statements in this section
+                const createStatements = delimiterSection.split(/(?=CREATE\s+(?:PROCEDURE|TRIGGER))/i);
+                
+                for (const statement of createStatements) {
+                    // Skip empty statements
+                    if (!statement.trim()) continue;
+                    
+                    // Extract just one complete procedure/trigger definition
+                    // This will include everything from CREATE to END
+                    const match = statement.match(/^(CREATE\s+(?:PROCEDURE|TRIGGER)[^;]+END)\s*[\$;]/is);
+                    
+                    if (match) {
+                        const definition = match[1] + ';';  // Add standard semicolon terminator
+                        
+                        try {
+                            await connection.query(definition);
+                            logInfo(`Successfully created procedure/trigger from ${file}`);
+                        } catch (error) {
+                            logError(`Error creating procedure/trigger: ${error.message}`);
+                            logError(`Problem SQL: ${definition}`);
+                            throw error;
+                        }
+                    }
                 }
             }
             
-            // Handle any remaining SQL statements that aren't procedures or triggers
-            // Remove all the procedures and triggers from the cleaned SQL
-            let remainingSql = cleanedSql;
-            procedures.forEach(proc => {
-                remainingSql = remainingSql.replace(proc, '');
-            });
-            
-            triggers.forEach(trig => {
-                remainingSql = remainingSql.replace(trig, '');
-            });
-            
-            // Remove DELIMITER statements
-            remainingSql = remainingSql.replace(/DELIMITER\s+.*$/gm, '').trim();
-            
-            // Execute any remaining SQL if it's not empty
-            if (remainingSql && remainingSql.trim() !== '') {
-                try {
-                    await connection.query(remainingSql);
-                    logInfo(`Executed remaining SQL statements from ${file}`);
-                } catch (error) {
-                    logError(`Error executing remaining SQL: ${error.message}`);
-                    logError(`Problem SQL: ${remainingSql}`);
-                    throw error;
-                }
-            }
+            logInfo(`Completed processing ${file}`);
         } else {
             // For non-procedure/trigger files, execute directly
             await connection.query(sqlContent);

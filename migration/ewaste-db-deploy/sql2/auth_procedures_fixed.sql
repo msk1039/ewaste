@@ -1,7 +1,7 @@
 USE myapp;
-DELIMITER $$
 
 -- Procedure for donor signup
+DELIMITER $$
 CREATE PROCEDURE RegisterDonor(
     IN p_name VARCHAR(100),
     IN p_email VARCHAR(100),
@@ -49,8 +49,10 @@ BEGIN
     SELECT LAST_INSERT_ID() AS donor_id;
     COMMIT;
 END $$
+DELIMITER ;
 
 -- Procedure for volunteer signup
+DELIMITER $$
 CREATE PROCEDURE RegisterVolunteer(
     IN p_name VARCHAR(100),
     IN p_age INT,
@@ -93,8 +95,10 @@ BEGIN
     SELECT LAST_INSERT_ID() AS volunteer_id;
     COMMIT;
 END $$
+DELIMITER ;
 
 -- Procedure for admin signup
+DELIMITER $$
 CREATE PROCEDURE RegisterAdmin(
     IN p_name VARCHAR(100),
     IN p_email VARCHAR(100),
@@ -133,8 +137,10 @@ BEGIN
     SELECT LAST_INSERT_ID() AS admin_id;
     COMMIT;
 END $$
+DELIMITER ;
 
 -- Procedure for recycler signup
+DELIMITER $$
 CREATE PROCEDURE RegisterRecycler(
     IN p_name VARCHAR(100),
     IN p_email VARCHAR(100),
@@ -170,8 +176,10 @@ BEGIN
         SELECT LAST_INSERT_ID() AS recycler_id, 'Recycler registered successfully' AS message;
     END IF;
 END $$
+DELIMITER ;
 
 -- Procedure for donor login
+DELIMITER $$
 CREATE PROCEDURE LoginDonor(
     IN p_email VARCHAR(100)
 )
@@ -190,8 +198,10 @@ BEGIN
     WHERE 
         email = p_email;
 END $$
+DELIMITER ;
 
 -- Procedure for volunteer login
+DELIMITER $$
 CREATE PROCEDURE LoginVolunteer(
     IN p_email VARCHAR(100)
 )
@@ -209,8 +219,10 @@ BEGIN
     WHERE 
         name = p_email;  -- Using name field as the identifier for volunteers since there's no email field
 END $$
+DELIMITER ;
 
 -- Procedure for admin login
+DELIMITER $$
 CREATE PROCEDURE LoginAdmin(
     IN p_email VARCHAR(100)
 )
@@ -226,8 +238,10 @@ BEGIN
     WHERE 
         email = p_email;
 END $$
+DELIMITER ;
 
 -- Procedure for recycler login
+DELIMITER $$
 CREATE PROCEDURE LoginRecycler(
     IN p_email VARCHAR(100)
 )
@@ -245,8 +259,10 @@ BEGIN
     WHERE 
         email = p_email;
 END $$
+DELIMITER ;
 
 -- Generic procedure to validate user credentials across all roles
+DELIMITER $$
 CREATE PROCEDURE ValidateUserCredentials(
     IN p_email VARCHAR(100),
     IN p_role VARCHAR(20)
@@ -313,5 +329,4 @@ BEGIN
                 FALSE;
     END CASE;
 END $$
-
 DELIMITER ;

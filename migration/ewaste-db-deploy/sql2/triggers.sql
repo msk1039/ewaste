@@ -1,17 +1,5 @@
 USE myapp;
 
--- Trigger to automatically update request status when assigned to a recycler
-DELIMITER $$
-CREATE TRIGGER after_recycler_assignment
-AFTER INSERT ON recycler_assignments
-FOR EACH ROW
-BEGIN
-    UPDATE Request
-    SET status = 'processing'
-    WHERE request_id = NEW.request_id;
-END $$
-DELIMITER ;
-
 -- Trigger to automatically update recycler's quantity when a new e-waste is assigned
 DELIMITER //
 CREATE TRIGGER after_ewaste_assigned

@@ -1,5 +1,4 @@
 -- Create database
-DROP DATABASE IF EXISTS myapp;
 CREATE DATABASE IF NOT EXISTS myapp;
 USE myapp;
 
@@ -137,3 +136,14 @@ CREATE TABLE IF NOT EXISTS Feedback (
     FOREIGN KEY (donor_id) REFERENCES Donor(donor_id) ON DELETE CASCADE
 );
 
+-- Create trigger to update request status when assigned to a recycler
+-- DELIMITER //
+-- CREATE TRIGGER after_recycler_assignment
+-- AFTER INSERT ON recycler_assignments
+-- FOR EACH ROW
+-- BEGIN
+--     UPDATE Request
+--     SET status = 'processing'
+--     WHERE request_id = NEW.request_id;
+-- END //
+-- DELIMITER ;
