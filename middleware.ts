@@ -31,6 +31,10 @@ export async function middleware(request: NextRequest) {
   console.log('Middleware processing path:', path); // Debug logging
   
   // Always allow root path
+  if(path==='/database/data' || path==='/database/procedures'){
+    return NextResponse.next();
+  }
+
   if (path === '/') {
     return NextResponse.next();
   }
