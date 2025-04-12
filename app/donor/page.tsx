@@ -64,9 +64,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-slate-50">
+    <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        {/* <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
           <h1 className="text-3xl font-bold">E-Waste Management Dashboard</h1>
           <div className="flex items-center gap-4">
             <p className="text-muted-foreground">Welcome, {user.name}!</p>
@@ -74,7 +74,7 @@ export default function Dashboard() {
               Logout
             </Button>
           </div>
-        </div>
+        </div> */}
         
         {user.role === 'donor' && <DonorDashboard userId={user.id} />}
         {/* {user.role === 'volunteer' && <VolunteerDashboard userId={user.id} />}

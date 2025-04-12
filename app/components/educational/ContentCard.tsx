@@ -9,7 +9,7 @@ interface ContentCardProps {
   content: EducationalContent;
 }
 
-export default function ContentCard({ content }: ContentCardProps) {
+export default function ContentCard({ content, root }: { content: EducationalContent, root: string }) {
   // Format date to be more readable
   const formattedDate = format(new Date(content.upload_date), "MMMM d, yyyy");
   
@@ -23,7 +23,7 @@ export default function ContentCard({ content }: ContentCardProps) {
   const viewCount = content.view_count || 0;
 
   return (
-    <Link href={`/educational-content/${content.content_id}`}>
+    <Link href={`/${root}/educational-content/${content.content_id}`}>
       <Card className="h-full transition-all hover:shadow-lg hover:border-green-400">
         <CardHeader className="bg-green-50 pb-2">
           <CardTitle className="text-xl font-medium text-green-800">{content.title}</CardTitle>

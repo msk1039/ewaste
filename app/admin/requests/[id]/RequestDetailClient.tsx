@@ -1,5 +1,5 @@
 'use client';
-
+import { showSqlCodeToast, usePrismHighlighting } from "@/components/SqlCodeToast";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -93,6 +93,7 @@ export default function RequestDetailPage({ id }: { id: string }) {
         setRecyclers([]);
       } finally {
         setIsLoading(false);
+        toast.info("called procedure GetEducationalContentWithViewById(id)")
       }
     };
     
@@ -130,6 +131,7 @@ export default function RequestDetailPage({ id }: { id: string }) {
     
     try {
       setIsAssigning(true);
+      toast.info("called procedure AssignRecyclerToRequest(requestId, recyclerId, adminId)")  
       
       const response = await fetch('/api/requests/assign-recycler_copy', {
         method: 'POST',
@@ -184,6 +186,7 @@ export default function RequestDetailPage({ id }: { id: string }) {
 
   console.log("Recyclers data:", recyclers);
     console.log("Filtered recyclers:", filteredRecyclers);
+  
 
 
   
@@ -194,6 +197,12 @@ export default function RequestDetailPage({ id }: { id: string }) {
       </div>
     );
   }
+
+
+  
+  
+
+ 
   
   if (error) {
     return (
@@ -220,6 +229,8 @@ export default function RequestDetailPage({ id }: { id: string }) {
   }
   
   if (assignSuccess) {
+    // renderTriggerSonner();
+   
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-6">
         <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">

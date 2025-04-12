@@ -186,7 +186,7 @@ END
 
 ```sql
 CREATE TRIGGER after_recycler_assignment
-AFTER INSERT ON recycler_assignments
+AFTER INSERT ON Request_Recycler_Assignment
 FOR EACH ROW
 BEGIN
     UPDATE Request
@@ -201,7 +201,7 @@ END
 
 ```sql
 CREATE TRIGGER after_assignment_completed
-AFTER UPDATE ON recycler_assignments
+AFTER UPDATE ON Request_Recycler_Assignment
 FOR EACH ROW
 BEGIN
     -- Check if completed_date was just updated from NULL to a value

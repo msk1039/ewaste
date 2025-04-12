@@ -15,13 +15,14 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import ContentNotifications from "@/app/components/ContentNotifications"
 
 interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, loading } = useAuth();
+  const { user, loading , logout } = useAuth();
   const pathname = usePathname();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
@@ -37,7 +38,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     
     return (
       <div className="flex items-center text-sm text-muted-foreground px-4 md:max-w-7xl mx-auto">
-        <Link href="/admin" className="hover:text-foreground transition-colors">
+        <Link href="/donor" className="hover:text-foreground transition-colors">
           <Home size={16} className="inline mr-1" />
           Home
         </Link>
@@ -72,27 +73,22 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navItems = [
     {
       name: 'Dashboard',
-      path: '/admin',
+      path: '/donor',
       icon: <Home size={18} className="mr-2" />
     },
     {
-      name: 'Analytics',
-      path: '/admin/analytics',
-      icon: <BarChart3 size={18} className="mr-2" />
-    },
-    {
       name: 'Educational Content',
-      path: '/admin/educational-content',
+      path: '/donor/educational-content',
       icon: <BookOpen size={18} className="mr-2" />
     },
-    {
-      name: 'Programs',
-      path: '/admin/Programs',
-      icon: <Calendar size={18} className="mr-2" />
-    }
+    // {
+    //   name: 'Programs',
+    //   path: '/Programs',
+    //   icon: <Calendar size={18} className="mr-2" />
+    // }
   ];
 
-  if (loading || !user || user.role !== 'admin') {
+  if (loading || !user || user.role !== 'donor') {
     return <>{children}</>;
   }
 
@@ -102,13 +98,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <header className="sticky top-0 z-40 w-full backdrop-blur-sm bg-white/80 border-b ">
         <div className="container flex h-16 items-center justify-between mx-auto max-w-7xl px-4">
           <div className="flex items-center">
-            <Link href="/admin" className="font-medium text-lg">
-              E-Waste Admin
+            <Link href="/donor" className="font-medium text-lg">
+              E-Waste Donor
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-12">
+          <ContentNotifications root="donor"/>
             {navItems.map((item) => (
               <Link 
                 key={item.path} 
@@ -124,6 +121,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {item.name}
               </Link>
             ))}
+            <Button variant="destructive" onClick={logout}>
+              Logout
+            </Button>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -135,13 +135,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           >
             {isMobileNavOpen ? <X /> : <Menu />}
           </Button>
+         
         </div>
       </header>
 
       {/* Mobile Navigation */}
       {isMobileNavOpen && (
         <div className="fixed inset-0 top-16 z-30 bg-background/95 backdrop-blur-sm md:hidden">
-          <nav className="container grid gap-y-4 py-6">
+          <nav className="container grid gap-y-4 py-6 px-4">
             {navItems.map((item) => (
               <Link 
                 key={item.path} 
@@ -156,7 +157,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {item.icon}
                 {item.name}
               </Link>
+              
             ))}
+            <Button variant="destructive" onClick={logout}>
+              Logout
+            </Button>
           </nav>
         </div>
       )}

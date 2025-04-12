@@ -57,7 +57,7 @@ DELIMITER ;
 -- Trigger to update request status to 'completed' when completed_date is set
 DELIMITER //
 CREATE TRIGGER after_assignment_completed
-AFTER UPDATE ON recycler_assignments
+AFTER UPDATE ON Request_Recycler_Assignment
 FOR EACH ROW
 BEGIN
     -- Check if completed_date was just updated from NULL to a value

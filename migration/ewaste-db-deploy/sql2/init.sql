@@ -103,19 +103,19 @@ CREATE TABLE IF NOT EXISTS Request (
 );
 
 -- Recycler Assignments table (new version that matches your API requirements)
-CREATE TABLE IF NOT EXISTS recycler_assignments (
-    assignment_id INT PRIMARY KEY AUTO_INCREMENT,
-    request_id INT NOT NULL,
-    recycler_id INT NOT NULL,
-    assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    completed_date TIMESTAMP NULL,
-    created_by INT NOT NULL,  -- admin_id who created the assignment
+-- CREATE TABLE IF NOT EXISTS recycler_assignments (
+--     assignment_id INT PRIMARY KEY AUTO_INCREMENT,
+--     request_id INT NOT NULL,
+--     recycler_id INT NOT NULL,
+--     assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     completed_date TIMESTAMP NULL,
+--     created_by INT NOT NULL,  -- admin_id who created the assignment
     
-    -- Foreign key constraints
-    FOREIGN KEY (request_id) REFERENCES Request(request_id) ON DELETE CASCADE,
-    FOREIGN KEY (recycler_id) REFERENCES Recycler(recycler_id) ON DELETE CASCADE,
-    FOREIGN KEY (created_by) REFERENCES Admin(admin_id) ON DELETE CASCADE
-);
+--     -- Foreign key constraints
+--     FOREIGN KEY (request_id) REFERENCES Request(request_id) ON DELETE CASCADE,
+--     FOREIGN KEY (recycler_id) REFERENCES Recycler(recycler_id) ON DELETE CASCADE,
+--     FOREIGN KEY (created_by) REFERENCES Admin(admin_id) ON DELETE CASCADE
+-- );
 
 -- Total E-Waste table
 CREATE TABLE IF NOT EXISTS Total_EWaste (

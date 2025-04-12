@@ -34,7 +34,7 @@ BEGIN
     r.service_area,
     ra.assigned_date
   FROM 
-    recycler_assignments ra
+    Request_Recycler_Assignment ra
   JOIN 
     Request r ON ra.request_id = r.request_id
   JOIN 
@@ -66,7 +66,7 @@ BEGIN
     JOIN 
         Donor d ON r.donor_id = d.donor_id
     JOIN 
-        recycler_assignments ra ON r.request_id = ra.request_id
+        Request_Recycler_Assignment ra ON r.request_id = ra.request_id
     WHERE 
         ra.recycler_id = p_recycler_id
     ORDER BY 
@@ -88,7 +88,7 @@ BEGIN
         request_id = p_request_id;
     
     -- Insert the assignment
-    INSERT INTO recycler_assignments (
+    INSERT INTO Request_Recycler_Assignment (
         request_id, 
         recycler_id, 
         created_by
@@ -128,7 +128,7 @@ BEGIN
         request_id = p_request_id;
     
     -- Update the assignment record
-    UPDATE recycler_assignments
+    UPDATE Request_Recycler_Assignment
     SET 
         completed_date = CURRENT_TIMESTAMP()
     WHERE 

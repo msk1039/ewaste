@@ -1,19 +1,21 @@
 -- Create database
+
+DROP DATABASE myapp;
 CREATE DATABASE IF NOT EXISTS myapp;
 USE myapp;
 
 -- Drop existing tables if needed (in reverse order of dependencies)
-DROP TABLE IF EXISTS Feedback;
-DROP TABLE IF EXISTS Total_EWaste;
-DROP TABLE IF EXISTS recycler_assignments;  -- Update to use new table name
-DROP TABLE IF EXISTS Request;
-DROP TABLE IF EXISTS Volunteer;
-DROP TABLE IF EXISTS Educational_Content;
-DROP TABLE IF EXISTS Recycling_Program;
-DROP TABLE IF EXISTS Recycler;
-DROP TABLE IF EXISTS Donor;
-DROP TABLE IF EXISTS Admin;
-DROP TABLE IF EXISTS User;
+-- DROP TABLE IF EXISTS Feedback;
+-- DROP TABLE IF EXISTS Total_EWaste;
+-- DROP TABLE IF EXISTS recycler_assignments;  -- Update to use new table name
+-- DROP TABLE IF EXISTS Request;
+-- DROP TABLE IF EXISTS Volunteer;
+-- DROP TABLE IF EXISTS Educational_Content;
+-- DROP TABLE IF EXISTS Recycling_Program;
+-- DROP TABLE IF EXISTS Recycler;
+-- DROP TABLE IF EXISTS Donor;
+-- DROP TABLE IF EXISTS Admin;
+-- DROP TABLE IF EXISTS User;
 
 -- User table (general table if needed)
 CREATE TABLE IF NOT EXISTS User (

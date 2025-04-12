@@ -20,7 +20,7 @@ type ContentNotification = {
   is_sent: boolean;
 };
 
-export default function ContentNotifications() {
+export default function ContentNotifications({root}: {root: string}) {
   const [notifications, setNotifications] = useState<ContentNotification[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -102,7 +102,7 @@ export default function ContentNotifications() {
             notifications.map((notification) => (
               <DropdownMenuItem key={notification.notification_id} className="cursor-pointer">
                 <Link 
-                  href={`/educational-content/${notification.content_id}`}
+                  href={`${root}/educational-content/${notification.content_id}`}
                   className="flex flex-col w-full"
                   onClick={() => !notification.is_sent && markAsSent(notification.notification_id)}
                 >

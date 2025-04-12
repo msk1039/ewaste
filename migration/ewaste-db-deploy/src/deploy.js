@@ -32,7 +32,7 @@ const sqlFiles = [
     'init.sql',
     
     // Core procedures 
-    'auth_procedures_fixed.sql',
+    'auth_procedures.sql',
     'donor_procedures.sql',
     'request_procedures.sql',
     'recycler_procedures.sql',
@@ -92,7 +92,7 @@ const extractProcedures = (sqlContent) => {
 const runSqlFile = async (connection, file) => {
     try {
         // Updated to use sql2 directory
-        const filePath = path.join(__dirname, '../sql2', file);
+        const filePath = path.join(__dirname, '../sql3', file);
         logInfo(`Reading file ${filePath}`);
         
         const sqlContent = await fs.readFile(filePath, 'utf8');

@@ -12,13 +12,16 @@ export const pool = mysql.createPool({
   queueLimit: 0,
   ssl: process.env.NODE_ENV === 'production'
     ? {
-        // For production, maintain security requirements
-        rejectUnauthorized: true,
-      }
+      ca: process.env.DB_CA_CERT,
+      // key: fs.readFileSync('./certs/key.pem'),
+      // cert: fs.readFileSync('./certs/cert.pem'),
+      rejectUnauthorized: true,
+    }
     : {
         // For development, allow self-signed certificates
         rejectUnauthorized: false,
       },
+    
 });
 
 // Execute SQL queries

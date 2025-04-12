@@ -1,5 +1,6 @@
 import mysql from 'mysql2/promise';
 
+// Enhanced configuration for database connection with better SSL handling
 export const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
@@ -7,7 +8,13 @@ export const pool = mysql.createPool({
   database: process.env.DB_NAME || 'myapp',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  port: parseInt(process.env.DB_PORT || '3306'),
+  // More robust SSL configuration
+  ssl: {
+    // Disable certificate validation for cloud database connections
+    rejectUnauthorized: false
+  }
 });
 
 // Execute SQL queries

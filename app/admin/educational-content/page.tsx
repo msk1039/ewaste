@@ -37,6 +37,7 @@ export default function AdminEducationalContentPage() {
         console.error(err);
       } finally {
         setLoading(false);
+        toast.info("called procedure GetEducationalContentByAdminId(adminId)");
       }
     }
 

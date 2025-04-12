@@ -74,6 +74,7 @@ export default function AdminDashboard({ userId }: AdminDashboardProps) {
         toast.error(err.message);
       } finally {
         setIsLoading(false);
+        toast.info("called procedure GetAllRequests");
       }
     };
 
